@@ -51,7 +51,7 @@ function createBoard() {
 
 // kontrollera om spelet är över
 function checkGameOver() {
-  console.log(`Checking game over: Score = ${score}, Moves = ${moves}`);
+  console.log(`Checking game over: Score = ${score}, Moves = ${moves}`); // Felsökning: Visa aktuell poäng och antal drag
   if (score >= 100) {
     console.log("Game won, showing modal");
     showModal("You Win!");
@@ -61,6 +61,7 @@ function checkGameOver() {
   }
 }
 
+// Visa modal med ett meddelande
 function showModal(message) {
   console.log("Showing modal with message:", message);
   const modal = document.getElementById("gameModal");
@@ -96,6 +97,7 @@ function handleDrop(event) {
   const draggedEmoji = event.dataTransfer.getData("text/plain");
   const targetEmoji = event.target.textContent;
 
+  // Kontrollera matchar och inte är samma cell
   if (draggedEmoji === targetEmoji && draggedElement !== event.target) {
     incrementScore(draggedEmoji);
 
@@ -141,7 +143,7 @@ function handleTouchStart(event) {
   touchElement.style.transform = "scale(1.5)";
   touchElement.style.transition = "transform 0.2s ease";
 
-  //  centrera frukten
+  // Beräkna storleken på cellen för att kunna centrera frukten korrekt
   const rect = touchElement.getBoundingClientRect();
   const offsetX = rect.width / 2;
   const offsetY = rect.height / 2;
@@ -150,8 +152,8 @@ function handleTouchStart(event) {
   placeholder.className = "placeholder";
   placeholder.textContent = originalContent;
   placeholder.style.position = "absolute";
-  placeholder.style.left = `${touch.clientX - offsetX}px`;
-  placeholder.style.top = `${touch.clientY - offsetY}px`;
+  placeholder.style.left = `${touch.clientX - offsetX}px`; // Centrera X
+  placeholder.style.top = `${touch.clientY - offsetY}px`; // Centrera Y
   placeholder.style.pointerEvents = "none";
   placeholder.style.fontSize = "3rem";
   document.body.appendChild(placeholder);
@@ -159,20 +161,22 @@ function handleTouchStart(event) {
   touchElement.classList.add("dragging");
 }
 
+// touch-move händelsen
 function handleTouchMove(event) {
   event.preventDefault();
   if (!touchElement) return;
   const touch = event.touches[0];
 
-  //  centrera frukten
+  // Använd offset för att centrera frukten under fingret
   const rect = touchElement.getBoundingClientRect();
   const offsetX = rect.width / 2;
   const offsetY = rect.height / 2;
 
-  placeholder.style.left = `${touch.clientX - offsetX}px`;
-  placeholder.style.top = `${touch.clientY - offsetY}px`;
+  placeholder.style.left = `${touch.clientX - offsetX}px`; // Centrera X
+  placeholder.style.top = `${touch.clientY - offsetY}px`; // Centrera Y
 }
 
+//touch-end händelsen
 function handleTouchEnd(event) {
   if (!touchElement) return;
   const touch = event.changedTouches[0];
@@ -219,6 +223,7 @@ function handleTouchEnd(event) {
   document.body.removeChild(placeholder);
 }
 
+// Återställ emoji om det inte är en matchning
 function returnEmojiToOriginalCell() {
   originalCell.textContent = originalContent;
 }
@@ -230,6 +235,7 @@ function getNextTwoEmojis(matchedEmoji) {
   return [nextEmoji1, nextEmoji2];
 }
 
+// Hämta två slumpmässiga emojis från sekvensen
 function getRandomTwoEmojis() {
   const randomIndex1 = Math.floor(Math.random() * emojiSequence.length);
   let randomIndex2;
