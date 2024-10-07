@@ -17,6 +17,7 @@ const scoreValues = {
 const emojiSequence = itemDataObj["🥥"];
 const totalCells = 25;
 const maxMoves = 14;
+let gameOverScore = 100;
 
 let board = document.getElementById("board");
 let score = 0;
@@ -24,10 +25,9 @@ let moves = maxMoves;
 let draggedElement = null;
 let originalContent = "";
 let originalCell = null;
-let currentSequenceIndex = 0;
 let touchStartX, touchStartY, touchElement, placeholder;
 
-//skapa brädet med 25 celler
+/* Skapar spelbrädet med celler */
 function createBoard() {
   board.innerHTML = "";
   for (let i = 0; i < totalCells; i++) {
@@ -49,20 +49,15 @@ function createBoard() {
   }
 }
 
-// kontrollera om spelet är över
 function checkGameOver() {
-  console.log(`Checking game over: Score = ${score}, Moves = ${moves}`);
-  if (score >= 100) {
-    console.log("Game won, showing modal");
+  if (score >= gameOverScore) {
     showModal("You Win!");
   } else if (moves <= 0) {
-    console.log("Game lost");
-    showModal("Game Over!  Try again");
+    showModal("Game Over! Try again");
   }
 }
 
 function showModal(message) {
-  console.log("Showing modal with message:", message);
   const modal = document.getElementById("gameModal");
   const modalMessage = document.getElementById("modalMessage");
   modalMessage.textContent = message;
@@ -70,13 +65,11 @@ function showModal(message) {
 }
 
 function hideModal() {
-  console.log("Hiding modal and reloading page");
   const modal = document.getElementById("gameModal");
   modal.style.display = "none";
   location.reload();
 }
 
-// Startar drag-eventet
 function handleDragStart(event) {
   if (event.target.classList.contains("locked")) return;
   draggedElement = event.target;
@@ -86,11 +79,11 @@ function handleDragStart(event) {
   draggedElement.classList.add("dragging");
 }
 
-// Förhindra standardbeteende för att tillåta drop
 function handleDragOver(event) {
   event.preventDefault();
 }
 
+/* Hanterar när ett element släpps på en annan cell och kontrollerar om det är en matchning */
 function handleDrop(event) {
   event.preventDefault();
   const draggedEmoji = event.dataTransfer.getData("text/plain");
@@ -98,29 +91,17 @@ function handleDrop(event) {
 
   if (draggedEmoji === targetEmoji && draggedElement !== event.target) {
     incrementScore(draggedEmoji);
-
     moves--;
     document.getElementById("moves").textContent = moves;
 
-    // Kontrollera om matchningen är den sista emojin "🍹"
-    if (draggedEmoji === "🍹") {
-      const randomEmojis = getRandomTwoEmojis();
-      originalCell.textContent = randomEmojis[0];
-      event.target.textContent = randomEmojis[1];
-    } else {
-      const nextEmojis = getNextTwoEmojis(draggedEmoji);
-      if (nextEmojis) {
-        originalCell.textContent = nextEmojis[0];
-        event.target.textContent = nextEmojis[1];
-      }
-    }
-
+    updateEmojisAfterMatch(draggedEmoji, originalCell, event.target);
     checkGameOver();
   } else {
     returnEmojiToOriginalCell();
   }
 }
 
+/* Återställer status efter att ett element har släppts */
 function handleDragEnd(event) {
   draggedElement.classList.remove("dragging");
   draggedElement = null;
@@ -128,7 +109,7 @@ function handleDragEnd(event) {
   originalCell = null;
 }
 
-// touch-start händelsen
+/* Hanterar när användaren påbörjar en touch-händelse */
 function handleTouchStart(event) {
   if (event.target.classList.contains("locked")) return;
   const touch = event.touches[0];
@@ -141,7 +122,6 @@ function handleTouchStart(event) {
   touchElement.style.transform = "scale(1.5)";
   touchElement.style.transition = "transform 0.2s ease";
 
-  //  centrera frukten
   const rect = touchElement.getBoundingClientRect();
   const offsetX = rect.width / 2;
   const offsetY = rect.height / 2;
@@ -159,20 +139,19 @@ function handleTouchStart(event) {
   touchElement.classList.add("dragging");
 }
 
+/*Hanterar rörelse av touch-händelse genom att flytta elementet */
 function handleTouchMove(event) {
   event.preventDefault();
   if (!touchElement) return;
   const touch = event.touches[0];
-
-  //  centrera frukten
   const rect = touchElement.getBoundingClientRect();
   const offsetX = rect.width / 2;
   const offsetY = rect.height / 2;
-
   placeholder.style.left = `${touch.clientX - offsetX}px`;
   placeholder.style.top = `${touch.clientY - offsetY}px`;
 }
 
+/*Hanterar när användaren släpper elementet efter touch och kontrollerar om det är en matchning */
 function handleTouchEnd(event) {
   if (!touchElement) return;
   const touch = event.changedTouches[0];
@@ -191,17 +170,7 @@ function handleTouchEnd(event) {
       moves--;
       document.getElementById("moves").textContent = moves;
 
-      if (draggedEmoji === "🍹") {
-        const randomEmojis = getRandomTwoEmojis();
-        originalCell.textContent = randomEmojis[0];
-        dropTarget.textContent = randomEmojis[1];
-      } else {
-        const nextEmojis = getNextTwoEmojis(draggedEmoji);
-        if (nextEmojis) {
-          originalCell.textContent = nextEmojis[0];
-          dropTarget.textContent = nextEmojis[1];
-        }
-      }
+      updateEmojisAfterMatch(draggedEmoji, originalCell, dropTarget);
       checkGameOver();
     } else {
       returnEmojiToOriginalCell();
@@ -212,10 +181,8 @@ function handleTouchEnd(event) {
 
   touchElement.style.transform = "scale(1)";
   touchElement.style.transition = "transform 0.2s ease";
-
   touchElement.classList.remove("dragging");
   touchElement = null;
-
   document.body.removeChild(placeholder);
 }
 
@@ -223,37 +190,36 @@ function returnEmojiToOriginalCell() {
   originalCell.textContent = originalContent;
 }
 
-function getNextTwoEmojis(matchedEmoji) {
+/* Returnerar nästa emoji i sekvensen efter en matchning */
+function getNextEmoji(matchedEmoji) {
   const matchedIndex = emojiSequence.indexOf(matchedEmoji);
-  const nextEmoji1 = emojiSequence[(matchedIndex + 1) % emojiSequence.length];
-  const nextEmoji2 = emojiSequence[(matchedIndex + 2) % emojiSequence.length];
-  return [nextEmoji1, nextEmoji2];
+  return emojiSequence[(matchedIndex + 1) % emojiSequence.length];
 }
 
-function getRandomTwoEmojis() {
-  const randomIndex1 = Math.floor(Math.random() * emojiSequence.length);
-  let randomIndex2;
-  do {
-    randomIndex2 = Math.floor(Math.random() * emojiSequence.length);
-  } while (randomIndex2 === randomIndex1);
-  return [emojiSequence[randomIndex1], emojiSequence[randomIndex2]];
+/* Returnerar en slumpmässig emoji från sekvensen */
+function getRandomEmoji() {
+  return emojiSequence[Math.floor(Math.random() * emojiSequence.length)];
 }
 
-// Öka poängen baserat på vilken emoji som matchades
+/* Uppdaterar cellernas emojis efter en lyckad matchning */
+function updateEmojisAfterMatch(matchedEmoji, firstCell, secondCell) {
+  const nextEmoji = getNextEmoji(matchedEmoji);
+  if (matchedEmoji === "🍹") {
+    firstCell.textContent = getRandomEmoji();
+    secondCell.textContent = getRandomEmoji();
+  } else {
+    firstCell.textContent = nextEmoji;
+    secondCell.textContent = getRandomEmoji();
+  }
+}
+
+/*Ökar spelarens poäng baserat på vilken emoji som matchades */
 function incrementScore(matchedEmoji) {
   score += scoreValues[matchedEmoji];
   document.getElementById("score").textContent = score;
   const progressBar = document.getElementById("progress-bar");
-  let progress = (score / 100) * 100;
+  let progress = (score / gameOverScore) * 100;
   progressBar.style.width = progress + "%";
-
-  console.log(`Score updated: ${score}`);
-
-  if (score >= 100) {
-    console.log("Player won, showing modal...");
-    showModal("You Win!");
-    return;
-  }
 }
 
 function resetGame() {
