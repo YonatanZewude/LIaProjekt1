@@ -1,40 +1,116 @@
-const itemDataObj = {
-  "🥥": ["🫐", "🍓", "🍏", "🍌", "🥭", "🍍", "🍉", "🍈", "🍹"],
+// Global variable for image paths
+const imagePaths = {
+  blueberry: "../images/blueberry.png",
+  strawberry: "../images/strawberry.png",
+  apple: "../images/apple.png",
+  banana: "../images/banana.png",
+  mango: "../images/mango.png",
+  pineapple: "../images/pineapple.png",
+  watermelon: "../images/watermelon.png",
+  melon: "../images/melon.png",
+  drink: "../images/drink.png",
 };
 
+// Array with all image paths for the game
+const emojiSequence = [
+  imagePaths.blueberry,
+  imagePaths.strawberry,
+  imagePaths.apple,
+  imagePaths.banana,
+  imagePaths.mango,
+  imagePaths.pineapple,
+  imagePaths.watermelon,
+  imagePaths.melon,
+  imagePaths.drink,
+];
+
+// Score values for each image
 const scoreValues = {
-  "🫐": 1,
-  "🍓": 2,
-  "🍏": 3,
-  "🍌": 4,
-  "🥭": 5,
-  "🍍": 6,
-  "🍉": 7,
-  "🍈": 8,
-  "🍹": 9,
+  [imagePaths.blueberry]: 1,
+  [imagePaths.strawberry]: 2,
+  [imagePaths.apple]: 3,
+  [imagePaths.banana]: 4,
+  [imagePaths.mango]: 5,
+  [imagePaths.pineapple]: 6,
+  [imagePaths.watermelon]: 7,
+  [imagePaths.melon]: 8,
+  [imagePaths.drink]: 9,
 };
 
-const emojiSequence = itemDataObj["🥥"];
 const totalCells = 25;
-const maxMoves = 14;
-let gameOverScore = 100;
+const MaxMovesAndGoalScore = 20;
 
 let board = document.getElementById("board");
 let score = 0;
-let moves = maxMoves;
+let moves = MaxMovesAndGoalScore;
 let draggedElement = null;
 let originalContent = "";
 let originalCell = null;
-let touchStartX, touchStartY, touchElement, placeholder;
+let touchElement = null;
+let placeholder = null;
+let gameMode = "Version1"; // Default version
 
-/* Skapar spelbrädet med celler */
+const scoreDisplay = document.getElementById("score");
+const movesDisplay = document.getElementById("moves");
+const goalsSection = document.getElementById("goalsSection");
+const movesSection = document.getElementById("movesSection");
+
+const moveButton = document.getElementById("Limited_number_of_moves");
+moveButton.addEventListener("click", () => {
+  gameMode = "Version 1";
+  resetGameVersion1();
+});
+
+const scoreButton = document.getElementById("Unlimited_number_of_moves");
+scoreButton.addEventListener("click", () => {
+  gameMode = "Version2";
+  initVersion2();
+});
+
+function switchGameMode() {
+  if (gameMode === "Version 1") {
+    initVersion2();
+    gameMode = "Version2";
+    console.log("Switched to Version2: Unlimited Moves");
+  } else {
+    resetGameVersion1();
+    gameMode = "Version 1";
+    console.log("Switched to Version 1: Limited Moves");
+  }
+}
+
+const nrOfGols = document.getElementById("goalsSection");
+nrOfGols.innerHTML = "Goals: " + MaxMovesAndGoalScore;
+const nrOfMoves = document.getElementById("moves");
+nrOfMoves.innerHTML = MaxMovesAndGoalScore;
+
+if (gameMode === "Version1") {
+  nrOfGols.style.display = "none";
+} else {
+  nrOfGols.style.display = "block";
+}
+function resetGameVersion1() {
+  gameMode = "Version1";
+  score = 0;
+  moves = MaxMovesAndGoalScore;
+  scoreDisplay.textContent = score;
+  movesDisplay.textContent = moves;
+
+  movesSection.style.display = "block";
+  goalsSection.style.display = "none";
+
+  createBoard();
+}
+// Create game board with random images in each cell
 function createBoard() {
   board.innerHTML = "";
   for (let i = 0; i < totalCells; i++) {
     const cell = document.createElement("div");
     cell.className = "cell";
     cell.setAttribute("draggable", true);
-    cell.textContent = emojiSequence[i % emojiSequence.length];
+    const imgElement = document.createElement("img");
+    imgElement.src = getRandomEmoji();
+    cell.appendChild(imgElement);
 
     cell.addEventListener("dragstart", handleDragStart);
     cell.addEventListener("dragover", handleDragOver);
@@ -48,34 +124,48 @@ function createBoard() {
     board.appendChild(cell);
   }
 }
+function initVersion2() {
+  gameMode = "Version2";
+  score = 0;
+  moves = Infinity;
+
+  movesSection.style.display = "none";
+  goalsSection.style.display = "block";
+
+  scoreDisplay.textContent = score;
+  document.getElementById("progress-bar").style.width = "0%";
+
+  createBoard();
+}
 
 function checkGameOver() {
-  if (score >= gameOverScore) {
-    showModal("You Win!");
-  } else if (moves <= 0) {
-    showModal("Game Over! Try again");
+  if (gameMode === "Version1") {
+    if (moves <= 0)
+      showModal(
+        `Game Over! You scored ${score} points in ${MaxMovesAndGoalScore} moves. Try again!`
+      );
+  } else if (gameMode === "Version2") {
+    if (score >= MaxMovesAndGoalScore)
+      showModal(`Congratulations! You reached ${score} points! You Win!`);
   }
 }
 
 function showModal(message) {
   const modal = document.getElementById("gameModal");
-  const modalMessage = document.getElementById("modalMessage");
-  modalMessage.textContent = message;
+  document.getElementById("modalMessage").textContent = message;
   modal.style.display = "block";
 }
 
 function hideModal() {
-  const modal = document.getElementById("gameModal");
-  modal.style.display = "none";
+  document.getElementById("gameModal").style.display = "none";
   location.reload();
 }
 
 function handleDragStart(event) {
-  if (event.target.classList.contains("locked")) return;
-  draggedElement = event.target;
-  originalContent = draggedElement.textContent;
+  draggedElement = event.target.closest(".cell");
+  originalContent = draggedElement.querySelector("img").src;
   originalCell = draggedElement;
-  event.dataTransfer.setData("text/plain", draggedElement.textContent);
+  event.dataTransfer.setData("text/plain", originalContent);
   draggedElement.classList.add("dragging");
 }
 
@@ -83,25 +173,29 @@ function handleDragOver(event) {
   event.preventDefault();
 }
 
-/* Hanterar när ett element släpps på en annan cell och kontrollerar om det är en matchning */
 function handleDrop(event) {
   event.preventDefault();
   const draggedEmoji = event.dataTransfer.getData("text/plain");
-  const targetEmoji = event.target.textContent;
+  const targetEmoji = event.target.closest(".cell").querySelector("img").src;
 
-  if (draggedEmoji === targetEmoji && draggedElement !== event.target) {
+  if (
+    draggedEmoji === targetEmoji &&
+    draggedElement !== event.target.closest(".cell")
+  ) {
     incrementScore(draggedEmoji);
     moves--;
     document.getElementById("moves").textContent = moves;
 
-    updateEmojisAfterMatch(draggedEmoji, originalCell, event.target);
+    const nextEmojis = getNextTwoEmojis(draggedEmoji);
+    originalCell.querySelector("img").src = nextEmojis[0];
+    event.target.closest(".cell").querySelector("img").src = nextEmojis[1];
+
     checkGameOver();
   } else {
     returnEmojiToOriginalCell();
   }
 }
 
-/* Återställer status efter att ett element har släppts */
 function handleDragEnd(event) {
   draggedElement.classList.remove("dragging");
   draggedElement = null;
@@ -109,136 +203,143 @@ function handleDragEnd(event) {
   originalCell = null;
 }
 
-/* Hanterar när användaren påbörjar en touch-händelse */
-function handleTouchStart(event) {
-  if (event.target.classList.contains("locked")) return;
-  const touch = event.touches[0];
-  touchStartX = touch.clientX;
-  touchStartY = touch.clientY;
-  touchElement = event.target;
-  originalContent = touchElement.textContent;
-  originalCell = touchElement;
-
-  touchElement.style.transform = "scale(1.5)";
-  touchElement.style.transition = "transform 0.2s ease";
-
-  const rect = touchElement.getBoundingClientRect();
-  const offsetX = rect.width / 2;
-  const offsetY = rect.height / 2;
-
-  placeholder = document.createElement("div");
-  placeholder.className = "placeholder";
-  placeholder.textContent = originalContent;
-  placeholder.style.position = "absolute";
-  placeholder.style.left = `${touch.clientX - offsetX}px`;
-  placeholder.style.top = `${touch.clientY - offsetY}px`;
-  placeholder.style.pointerEvents = "none";
-  placeholder.style.fontSize = "3rem";
-  document.body.appendChild(placeholder);
-
-  touchElement.classList.add("dragging");
+// Return img to the original cell if no match
+function returnEmojiToOriginalCell() {
+  originalCell.querySelector("img").style.visibility = "visible";
 }
 
-/*Hanterar rörelse av touch-händelse genom att flytta elementet */
+function handleTouchStart(event) {
+  const touch = event.touches[0];
+  draggedElement = document
+    .elementFromPoint(touch.clientX, touch.clientY)
+    .closest(".cell");
+  originalContent = draggedElement.querySelector("img").src;
+  originalCell = draggedElement;
+  draggedElement.querySelector("img").style.visibility = "hidden"; // Hide the original image in cell
+
+  // Create visual copy of the element being dragged
+  placeholder = createPlaceholder(originalContent);
+  document.body.appendChild(placeholder);
+  movePlaceholder(touch.clientX, touch.clientY);
+}
+
+// Handle touch move event
 function handleTouchMove(event) {
   event.preventDefault();
-  if (!touchElement) return;
   const touch = event.touches[0];
-  const rect = touchElement.getBoundingClientRect();
-  const offsetX = rect.width / 2;
-  const offsetY = rect.height / 2;
-  placeholder.style.left = `${touch.clientX - offsetX}px`;
-  placeholder.style.top = `${touch.clientY - offsetY}px`;
+  movePlaceholder(touch.clientX, touch.clientY);
+  touchElement = document
+    .elementFromPoint(touch.clientX, touch.clientY)
+    .closest(".cell");
 }
 
-/*Hanterar när användaren släpper elementet efter touch och kontrollerar om det är en matchning */
+// Handle touch end event
 function handleTouchEnd(event) {
-  if (!touchElement) return;
-  const touch = event.changedTouches[0];
-  const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-
-  if (
-    dropTarget &&
-    dropTarget.classList.contains("cell") &&
-    dropTarget !== touchElement
-  ) {
-    const draggedEmoji = touchElement.textContent;
-    const targetEmoji = dropTarget.textContent;
+  if (touchElement && touchElement !== originalCell) {
+    const draggedEmoji = originalContent;
+    const targetEmoji = touchElement.querySelector("img").src;
 
     if (draggedEmoji === targetEmoji) {
       incrementScore(draggedEmoji);
       moves--;
       document.getElementById("moves").textContent = moves;
 
-      updateEmojisAfterMatch(draggedEmoji, originalCell, dropTarget);
+      const nextEmojis = getNextTwoEmojis(draggedEmoji);
+      originalCell.querySelector("img").src = nextEmojis[0];
+      touchElement.querySelector("img").src = nextEmojis[1];
+
       checkGameOver();
     } else {
       returnEmojiToOriginalCell();
     }
-  } else {
-    returnEmojiToOriginalCell();
   }
 
-  touchElement.style.transform = "scale(1)";
-  touchElement.style.transition = "transform 0.2s ease";
-  touchElement.classList.remove("dragging");
+  if (placeholder) placeholder.remove();
+  if (draggedElement)
+    draggedElement.querySelector("img").style.visibility = "visible"; // Show the original image again
+  draggedElement = null;
   touchElement = null;
-  document.body.removeChild(placeholder);
+  placeholder = null;
 }
 
-function returnEmojiToOriginalCell() {
-  originalCell.textContent = originalContent;
+// Create a visual placeholder for the dragged element
+function createPlaceholder(src) {
+  const placeholder = document.createElement("img");
+  placeholder.src = src;
+  placeholder.style.position = "absolute";
+  placeholder.style.width = "50px";
+  placeholder.style.height = "50px";
+  placeholder.style.pointerEvents = "none";
+  return placeholder;
 }
 
-/* Returnerar nästa emoji i sekvensen efter en matchning */
-function getNextEmoji(matchedEmoji) {
-  const matchedIndex = emojiSequence.indexOf(matchedEmoji);
-  return emojiSequence[(matchedIndex + 1) % emojiSequence.length];
+function movePlaceholder(x, y) {
+  placeholder.style.left = `${x - placeholder.width / 2}px`;
+  placeholder.style.top = `${y - placeholder.height / 2}px`;
 }
 
-/* Returnerar en slumpmässig emoji från sekvensen */
+// Get the next two emojis based on the matched emoji
+function getNextTwoEmojis(matchedEmoji) {
+  const fileName = matchedEmoji.split("/").pop();
+  const matchedIndex = emojiSequence.findIndex((image) =>
+    image.includes(fileName)
+  );
+  if (matchedIndex === -1) return [getRandomEmoji(), getRandomEmoji()];
+
+  let nextEmoji1 = getRandomEmoji();
+  let nextEmoji2 = emojiSequence[(matchedIndex + 1) % emojiSequence.length];
+  while (nextEmoji1 === nextEmoji2) nextEmoji1 = getRandomEmoji();
+
+  if (fileName === "melon.png") nextEmoji2 = imagePaths.drink;
+  return [nextEmoji1, nextEmoji2];
+}
+
 function getRandomEmoji() {
   return emojiSequence[Math.floor(Math.random() * emojiSequence.length)];
 }
 
-/* Uppdaterar cellernas emojis efter en lyckad matchning */
-function updateEmojisAfterMatch(matchedEmoji, firstCell, secondCell) {
-  const nextEmoji = getNextEmoji(matchedEmoji);
-  if (matchedEmoji === "🍹") {
-    firstCell.textContent = getRandomEmoji();
-    secondCell.textContent = getRandomEmoji();
-  } else {
-    firstCell.textContent = nextEmoji;
-    secondCell.textContent = getRandomEmoji();
-  }
-}
-
-/*Ökar spelarens poäng baserat på vilken emoji som matchades */
 function incrementScore(matchedEmoji) {
-  score += scoreValues[matchedEmoji];
+  const relativePath = `../images/${matchedEmoji.split("/").pop()}`;
+  if (!(relativePath in scoreValues)) return;
+
+  score += scoreValues[relativePath];
   document.getElementById("score").textContent = score;
-  const progressBar = document.getElementById("progress-bar");
-  let progress = (score / gameOverScore) * 100;
-  progressBar.style.width = progress + "%";
+
+  // Update the progress bar based on score
+  document.getElementById("progress-bar").style.width = `${
+    (score / MaxMovesAndGoalScore) * MaxMovesAndGoalScore
+  }%`;
+
+  checkGameOver();
 }
 
-function resetGame() {
-  hideModal();
+function resetGameVersion2() {
   score = 0;
-  moves = maxMoves;
+  moves = Infinity; // Set moves to unlimited for Version2
   document.getElementById("score").textContent = score;
-  document.getElementById("moves").textContent = moves;
   document.getElementById("progress-bar").style.width = "0%";
+
+  // Ensure to hide the moves section and show goals section
+  const movesSection = document.getElementById("movesSection");
+  const goalsSection = document.getElementById("goalsSection");
+
+  if (movesSection) movesSection.style.display = "none";
+  if (goalsSection) goalsSection.style.display = "block";
+
   createBoard();
 }
 
-document.getElementById("resetButton").addEventListener("click", resetGame);
+// Function call to start Version2 game manually
+//initVersion2();
+
+function resetGame() {
+  location.reload(); // Reloads the current page, resetting all states
+}
+
+// Event listeners for reset button and modal
 createBoard();
 document.getElementById("modalButton").addEventListener("click", hideModal);
 document.querySelector(".modal .close").addEventListener("click", hideModal);
-window.addEventListener("click", function (event) {
-  const modal = document.getElementById("gameModal");
-  if (event.target === modal) {
-    hideModal();
-  }
+window.addEventListener("click", (event) => {
+  if (event.target === document.getElementById("gameModal")) hideModal();
 });

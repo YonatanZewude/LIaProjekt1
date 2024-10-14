@@ -7,7 +7,7 @@ html {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -20,12 +20,15 @@ body {
     rgba(250, 75, 206, 0.384) 0%,
     rgba(116, 114, 12, 0.342) 71%
   );
-  width: 80;
+  width: 100%;
+  user-select: none; /* Standard property */
+  -webkit-user-select: none; /* Safari and Chrome */
+  -ms-user-select: none; /* IE and Edge */
 }
 
 .header {
   background: linear-gradient(to bottom, #a1c4fd, #c2e9fb);
-  padding: calc(1.5vw + 10px);
+  padding: calc(1.5vh);
   text-align: center;
   border-bottom: 3px solid #007bff;
   border-top-left-radius: 20px;
@@ -42,6 +45,7 @@ body {
   display: flex;
   flex-direction: column;
   max-width: 600px;
+  width: 100%;
   height: 100vh;
   max-height: 1200px;
   border: 2px solid #ddd;
@@ -55,22 +59,24 @@ body {
   background-attachment: fixed;
 }
 
-.container {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 95vh;
-}
-
 .stats {
   display: flex;
   justify-content: space-between;
   width: 100%;
   margin-bottom: 1vh;
 }
-
-.score,
+.stats .score {
+  display: block; 
+}
+#goalsSection #movesSection {
+  font-size: 12px;
+}
 .moves {
+  font-size: clamp(1.2rem, 1.5vw, 1.8rem);
+  font-weight: bold;
+}
+
+.score {
   font-size: clamp(1.2rem, 1.5vw, 1.8rem);
   font-weight: bold;
 }
@@ -81,7 +87,7 @@ body {
   background-color: #f0f0f0;
   border: 1px solid #ccc;
   border-radius: 10px;
-  height: calc(1.2vh + 8px);
+  height: calc(0.8vh);
   width: 80%;
   margin-top: 1vh;
   position: relative;
@@ -100,7 +106,7 @@ body {
   font-size: 24px;
   font-weight: bold;
 }
-
+/* Game board styling */
 #game-board {
   display: flex;
   justify-content: center;
@@ -113,23 +119,25 @@ body {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(5, 1fr);
-  gap: 1.2vw;
+  gap: 0.4vw;
   width: 90%;
   max-width: 500px;
   background-color: rgba(0, 0, 0, 0.6);
   border-radius: 15px;
   box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  padding-right: 30px;
   margin: 24px;
+  align-items: center;
 }
 
+/* Cell styling */
 .cell {
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: clamp(2.5rem, 2.9vw, 3.2rem);
-  cursor: grab;
+  font-size: 3rem;
+  cursor: pointer;
   background: linear-gradient(to bottom, #f3f7e7, #e0e0f8);
   border: 1px solid #ddd;
   border-radius: 15px;
@@ -152,6 +160,14 @@ body {
   background: linear-gradient(to bottom, #e0e0f8, #f3f7e7);
 }
 
+.cell img {
+  width: 100%;
+  height: 100%;
+  max-width: 70px;
+  max-height: 70px;
+  object-fit: contain;
+}
+
 #reset_button_section {
   text-align: center;
 }
@@ -172,7 +188,7 @@ body {
   font-size: 24px;
   cursor: pointer;
   transition: background-color 0.6s ease, transform 0.2s ease;
-  margin-bottom: 120px;
+  margin-bottom: 12px;
 }
 
 #resetButton:hover {
@@ -204,15 +220,23 @@ body {
   .cell {
     font-size: clamp(2rem, 3vw, 3.5rem);
   }
+  .cell img {
+    width: 50px; /* Justera bildstorleken för mobiler */
+    height: 50px;
+    max-width: 70px;
+    max-height: 70px;
+  }
 
   #resetButton {
     font-size: 16px;
     align-items: center;
-    padding: 10px;
   }
   .footer {
     margin-top: 20px;
     font-size: 12px;
+  }
+  .progress-container {
+    height: calc(1.2vh);
   }
 }
 
@@ -295,4 +319,42 @@ body {
 #modalButton:active {
   background: linear-gradient(45deg, #388e3c, #4caf50);
   transform: translateY(2px) scale(0.98);
+}
+
+#Gamemodebutton {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+  font-size: 14px;
+}
+.section {
+  font-size: 18px; /* Set the text size */
+  color: #333; /* Set text color */
+  padding: 10px; /* Add some padding */
+  margin: 10px 0; /* Add margin to separate them */
+  border: 1px solid #ccc; /* Optional: add a border */
+  border-radius: 5px; /* Optional: round the corners */
+  background-color: #f9f9f9; /* Optional: light background */
+}
+#Gamemodebutton button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: 2px solid #007bff;
+  background-color: #ffffff;
+  color: #007bff;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#Gamemodebutton button:hover {
+  background-color: #007bff;
+  color: #ffffff;
+}
+
+#Gamemodebutton button:active {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  color: #ffffff;
 }
