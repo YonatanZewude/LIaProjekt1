@@ -221,7 +221,6 @@ function handleTouchStart(event) {
   movePlaceholder(touch.clientX, touch.clientY);
 }
 
-// Handle touch move event
 function handleTouchMove(event) {
   event.preventDefault();
   const touch = event.touches[0];
