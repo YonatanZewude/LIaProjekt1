@@ -20,7 +20,6 @@ const emojiSequence = [
   imagePaths.mango,
   imagePaths.pineapple,
   imagePaths.watermelon,
-  imagePaths.melon,
   imagePaths.drink,
 ];
 
@@ -33,7 +32,6 @@ const scoreValues = {
   [imagePaths.mango]: 5,
   [imagePaths.pineapple]: 6,
   [imagePaths.watermelon]: 7,
-  [imagePaths.melon]: 8,
   [imagePaths.drink]: 9,
 };
 
