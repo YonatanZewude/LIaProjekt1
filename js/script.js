@@ -170,25 +170,32 @@ function handleDragStart(event) {
 function handleDragOver(event) {
   event.preventDefault();
 }
-
 function handleDrop(event) {
   event.preventDefault();
   const draggedEmoji = event.dataTransfer.getData("text/plain");
-  const targetEmoji = event.target.closest(".cell").querySelector("img").src;
-
-  if (
-    draggedEmoji === targetEmoji &&
-    draggedElement !== event.target.closest(".cell")
-  ) {
+  const targetCell = event.target.closest(".cell");
+  const targetEmoji = targetCell.querySelector("img").src;
+  if (draggedEmoji === targetEmoji && draggedElement !== targetCell) {
     incrementScore(draggedEmoji);
     moves--;
     document.getElementById("moves").textContent = moves;
+    draggedElement.classList.add("matched");
+    targetCell.classList.add("matched");
 
     const nextEmojis = getNextTwoEmojis(draggedEmoji);
     originalCell.querySelector("img").src = nextEmojis[0];
-    event.target.closest(".cell").querySelector("img").src = nextEmojis[1];
+    targetCell.querySelector("img").src = nextEmojis[1];
 
     checkGameOver();
+
+    setTimeout(() => {
+      if (draggedElement) {
+        draggedElement.classList.remove("matched");
+      }
+      if (targetCell) {
+        targetCell.classList.remove("matched");
+      }
+    }, 1500);
   } else {
     returnEmojiToOriginalCell();
   }
@@ -230,7 +237,6 @@ function handleTouchMove(event) {
     .closest(".cell");
 }
 
-// Handle touch end event
 function handleTouchEnd(event) {
   if (touchElement && touchElement !== originalCell) {
     const draggedEmoji = originalContent;
@@ -241,9 +247,25 @@ function handleTouchEnd(event) {
       moves--;
       document.getElementById("moves").textContent = moves;
 
-      const nextEmojis = getNextTwoEmojis(draggedEmoji);
-      originalCell.querySelector("img").src = nextEmojis[0];
-      touchElement.querySelector("img").src = nextEmojis[1];
+      // Lägg till klassen "matched" för båda elementen
+      originalCell?.classList.add("matched");
+      touchElement?.classList.add("matched");
+
+      // Fördröj uppdateringen av emojis tills efter att DOM-ändringarna är färdiga
+      requestAnimationFrame(() => {
+        // Kontrollera att både originalCell och touchElement inte är null innan vi uppdaterar emojis
+        if (originalCell && touchElement) {
+          const nextEmojis = getNextTwoEmojis(draggedEmoji);
+          originalCell.querySelector("img").src = nextEmojis[0];
+          touchElement.querySelector("img").src = nextEmojis[1];
+        }
+
+        // Ta bort "matched"-klassen efter att animationen spelats klart
+        setTimeout(() => {
+          originalCell?.classList.remove("matched");
+          touchElement?.classList.remove("matched");
+        }, 1500); // 1.5s matchar animationens varaktighet
+      });
 
       checkGameOver();
     } else {
@@ -251,9 +273,11 @@ function handleTouchEnd(event) {
     }
   }
 
+  // Återställ tillstånd
   if (placeholder) placeholder.remove();
-  if (draggedElement)
-    draggedElement.querySelector("img").style.visibility = "visible"; // Show the original image again
+  if (draggedElement) {
+    draggedElement.querySelector("img").style.visibility = "visible"; // Visa den ursprungliga bilden igen
+  }
   draggedElement = null;
   touchElement = null;
   placeholder = null;

@@ -359,26 +359,57 @@ body {
   color: #ffffff;
 }
 
-/* Define the class to apply when a match occurs */
 .matched {
-  animation: matchEffect 0.6s ease-in-out forwards;
+  -webkit-animation: rotate-scale-blur-in 1.5s
+    cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation: rotate-scale-blur-in 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 
-/* Define the keyframes for the animation */
-@keyframes matchEffect {
+/* Keyframes for animation */
+@-webkit-keyframes rotate-scale-blur-in {
   0% {
-    transform: scale(1) rotate(0deg);
-    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-    opacity: 1;
+    -webkit-transform: rotate(-360deg) scale(0.1);
+    transform: rotate(-360deg) scale(0.1);
+    -webkit-filter: blur(30px);
+    filter: blur(30px);
+    opacity: 0;
   }
   50% {
-    transform: scale(1.2) rotate(10deg); /* Scale up and rotate slightly */
-    box-shadow: 0 0 15px rgba(255, 223, 0, 0.7); /* Apply a glowing effect */
-    opacity: 0.9;
+    -webkit-transform: rotate(-180deg) scale(1.1);
+    transform: rotate(-180deg) scale(1.1);
+    -webkit-filter: blur(10px);
+    filter: blur(10px);
+    opacity: 0.5;
   }
   100% {
-    transform: scale(1) rotate(0deg); /* Return to normal scale */
-    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    -webkit-transform: rotate(0deg) scale(1);
+    transform: rotate(0deg) scale(1);
+    -webkit-filter: blur(0);
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+@keyframes rotate-scale-blur-in {
+  0% {
+    -webkit-transform: rotate(-360deg) scale(0.1);
+    transform: rotate(-360deg) scale(0.1);
+    -webkit-filter: blur(30px);
+    filter: blur(30px);
+    opacity: 0;
+  }
+  50% {
+    -webkit-transform: rotate(-180deg) scale(1.1);
+    transform: rotate(-180deg) scale(1.1);
+    -webkit-filter: blur(10px);
+    filter: blur(10px);
+    opacity: 0.5;
+  }
+  100% {
+    -webkit-transform: rotate(0deg) scale(1);
+    transform: rotate(0deg) scale(1);
+    -webkit-filter: blur(0);
+    filter: blur(0);
     opacity: 1;
   }
 }
