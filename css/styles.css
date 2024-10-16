@@ -1,5 +1,5 @@
 :root {
-  --background-image-default: url("../images/bg.webp");
+  --background-image-default: linear-gradient(to bottom, #f6c0a7, #e7fbc2);
 }
 
 body,

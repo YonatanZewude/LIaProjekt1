@@ -1,6 +1,6 @@
 // Global variable for image paths
 const imagePaths = {
-  blueberry: "../images/blueberry.png",
+  blueberry: "../images/par.png",
   strawberry: "../images/strawberry.png",
   apple: "../images/apple.png",
   banana: "../images/banana.png",
