@@ -197,7 +197,7 @@ function handleDrop(event) {
       }
     }, 1500);
   } else {
-    returnEmojiToOriginalCell();
+    returnEmojiToOriginalCell(); // Återställ emoji om det inte var en match
   }
 }
 
@@ -237,47 +237,34 @@ function handleTouchMove(event) {
     .closest(".cell");
 }
 
+// Handle touch end event
 function handleTouchEnd(event) {
   if (touchElement && touchElement !== originalCell) {
     const draggedEmoji = originalContent;
     const targetEmoji = touchElement.querySelector("img").src;
 
-    if (draggedEmoji === targetEmoji) {
+    if (draggedEmoji.trim() === targetEmoji.trim()) {
+      console.log("Match found!");
       incrementScore(draggedEmoji);
       moves--;
       document.getElementById("moves").textContent = moves;
 
-      // Lägg till klassen "matched" för båda elementen
-      originalCell?.classList.add("matched");
-      touchElement?.classList.add("matched");
+      const nextEmojis = getNextTwoEmojis(draggedEmoji);
+      originalCell.querySelector("img").src = nextEmojis[0];
+      touchElement.querySelector("img").src = nextEmojis[1];
 
-      // Fördröj uppdateringen av emojis tills efter att DOM-ändringarna är färdiga
-      requestAnimationFrame(() => {
-        // Kontrollera att både originalCell och touchElement inte är null innan vi uppdaterar emojis
-        if (originalCell && touchElement) {
-          const nextEmojis = getNextTwoEmojis(draggedEmoji);
-          originalCell.querySelector("img").src = nextEmojis[0];
-          touchElement.querySelector("img").src = nextEmojis[1];
-        }
-
-        // Ta bort "matched"-klassen efter att animationen spelats klart
-        setTimeout(() => {
-          originalCell?.classList.remove("matched");
-          touchElement?.classList.remove("matched");
-        }, 1500); // 1.5s matchar animationens varaktighet
-      });
-
+      draggedElement.classList.add("matched");
+      touchElement.classList.add("matched");
       checkGameOver();
     } else {
       returnEmojiToOriginalCell();
+      console.log("No match found.");
     }
   }
 
-  // Återställ tillstånd
   if (placeholder) placeholder.remove();
-  if (draggedElement) {
-    draggedElement.querySelector("img").style.visibility = "visible"; // Visa den ursprungliga bilden igen
-  }
+  if (draggedElement)
+    draggedElement.querySelector("img").style.visibility = "visible";
   draggedElement = null;
   touchElement = null;
   placeholder = null;
