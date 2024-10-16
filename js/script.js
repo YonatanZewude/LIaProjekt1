@@ -197,7 +197,7 @@ function handleDrop(event) {
       }
     }, 1500);
   } else {
-    returnEmojiToOriginalCell(); // Återställ emoji om det inte var en match
+    returnEmojiToOriginalCell();
   }
 }
 
@@ -323,7 +323,7 @@ function incrementScore(matchedEmoji) {
 
 function resetGameVersion2() {
   score = 0;
-  moves = Infinity; // Set moves to unlimited for Version2
+  moves = Infinity;
   document.getElementById("score").textContent = score;
   document.getElementById("progress-bar").style.width = "0%";
 
@@ -341,7 +341,7 @@ function resetGameVersion2() {
 //initVersion2();
 
 function resetGame() {
-  location.reload(); // Reloads the current page, resetting all states
+  location.reload();
 }
 
 // Event listeners for reset button and modal
