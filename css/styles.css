@@ -360,8 +360,8 @@ body {
 }
 
 .matched {
-  -webkit-animation: cool-fast-rotate-scale-blur-in 0.8s ease-out both;
-  animation: cool-fast-rotate-scale-blur-in 0.8s ease-out both;
+  -webkit-animation: cool-fast-rotate-scale-blur-in 0.3s ease-out both;
+  animation: cool-fast-rotate-scale-blur-in 0.3s ease-out both;
 }
 
 /* Keyframes for fast and cool animation */
