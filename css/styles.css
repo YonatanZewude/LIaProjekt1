@@ -21,9 +21,9 @@ body {
     rgba(116, 114, 12, 0.342) 71%
   );
   width: 100%;
-  user-select: none; /* Standard property */
-  -webkit-user-select: none; /* Safari and Chrome */
-  -ms-user-select: none; /* IE and Edge */
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 
 .header {
@@ -80,6 +80,22 @@ body {
   font-size: clamp(1.2rem, 1.5vw, 1.8rem);
   font-weight: bold;
 }
+#Limited_number_of_moves,
+#Unlimited_number_of_moves {
+  display: inline-block;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  color: #ffffff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
 
 .progress-container {
   display: flex;
@@ -106,7 +122,7 @@ body {
   font-size: 24px;
   font-weight: bold;
 }
-/* Game board styling */
+
 #game-board {
   display: flex;
   justify-content: center;
@@ -130,7 +146,6 @@ body {
   align-items: center;
 }
 
-/* Cell styling */
 .cell {
   width: 100%;
   display: flex;
@@ -221,7 +236,7 @@ body {
     font-size: clamp(2rem, 3vw, 3.5rem);
   }
   .cell img {
-    width: 50px; /* Justera bildstorleken för mobiler */
+    width: 50px;
     height: 50px;
     max-width: 70px;
     max-height: 70px;
