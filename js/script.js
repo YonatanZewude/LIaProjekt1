@@ -176,7 +176,6 @@ function handleDrop(event) {
   const targetCell = event.target.closest(".cell");
   const targetEmoji = targetCell.querySelector("img").src;
 
-  // Använd bara filnamnet för jämförelse
   const draggedEmojiFile = draggedEmoji.split("/").pop();
   const targetEmojiFile = targetEmoji.split("/").pop();
 
@@ -184,6 +183,10 @@ function handleDrop(event) {
     incrementScore(draggedEmoji);
     moves--;
     document.getElementById("moves").textContent = moves;
+
+    // Update progress bar based on remaining moves
+    updateProgressBarBasedOnMoves();
+
     draggedElement.classList.add("matched");
     targetCell.classList.add("matched");
 
@@ -248,11 +251,16 @@ function handleTouchEnd(event) {
     const draggedEmoji = originalContent;
     const targetEmoji = touchElement.querySelector("img").src;
 
-    if (draggedEmoji.trim() === targetEmoji.trim()) {
-      console.log("Match found!");
+    const draggedEmojiFile = draggedEmoji.split("/").pop();
+    const targetEmojiFile = targetEmoji.split("/").pop();
+
+    if (draggedEmojiFile === targetEmojiFile) {
       incrementScore(draggedEmoji);
       moves--;
       document.getElementById("moves").textContent = moves;
+
+      // Update progress bar based on remaining moves
+      updateProgressBarBasedOnMoves();
 
       const nextEmojis = getNextTwoEmojis(draggedEmoji);
       originalCell.querySelector("img").src = nextEmojis[0];
@@ -263,7 +271,6 @@ function handleTouchEnd(event) {
       checkGameOver();
     } else {
       returnEmojiToOriginalCell();
-      console.log("No match found.");
     }
   }
 
@@ -284,6 +291,14 @@ function createPlaceholder(src) {
   placeholder.style.height = "50px";
   placeholder.style.pointerEvents = "none";
   return placeholder;
+}
+// Update the progress bar based on remaining moves
+function updateProgressBarBasedOnMoves() {
+  const progressPercentage =
+    ((MaxMovesAndGoalScore - moves) / MaxMovesAndGoalScore) * 100;
+  document.getElementById(
+    "progress-bar"
+  ).style.width = `${progressPercentage}%`;
 }
 
 function movePlaceholder(x, y) {
