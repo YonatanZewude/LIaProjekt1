@@ -360,26 +360,25 @@ body {
 }
 
 .matched {
-  -webkit-animation: rotate-scale-blur-in 1.5s
-    cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-  animation: rotate-scale-blur-in 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  -webkit-animation: cool-fast-rotate-scale-blur-in 0.8s ease-out both;
+  animation: cool-fast-rotate-scale-blur-in 0.8s ease-out both;
 }
 
-/* Keyframes for animation */
-@-webkit-keyframes rotate-scale-blur-in {
+/* Keyframes for fast and cool animation */
+@-webkit-keyframes cool-fast-rotate-scale-blur-in {
   0% {
-    -webkit-transform: rotate(-360deg) scale(0.1);
-    transform: rotate(-360deg) scale(0.1);
-    -webkit-filter: blur(30px);
-    filter: blur(30px);
+    -webkit-transform: rotate(-720deg) scale(0.2);
+    transform: rotate(-720deg) scale(0.2);
+    -webkit-filter: blur(20px);
+    filter: blur(20px);
     opacity: 0;
   }
   50% {
-    -webkit-transform: rotate(-180deg) scale(1.1);
-    transform: rotate(-180deg) scale(1.1);
-    -webkit-filter: blur(10px);
-    filter: blur(10px);
-    opacity: 0.5;
+    -webkit-transform: rotate(-360deg) scale(1.2);
+    transform: rotate(-360deg) scale(1.2);
+    -webkit-filter: blur(5px);
+    filter: blur(5px);
+    opacity: 0.7;
   }
   100% {
     -webkit-transform: rotate(0deg) scale(1);
@@ -390,20 +389,20 @@ body {
   }
 }
 
-@keyframes rotate-scale-blur-in {
+@keyframes cool-fast-rotate-scale-blur-in {
   0% {
-    -webkit-transform: rotate(-360deg) scale(0.1);
-    transform: rotate(-360deg) scale(0.1);
-    -webkit-filter: blur(30px);
-    filter: blur(30px);
+    -webkit-transform: rotate(-720deg) scale(0.2);
+    transform: rotate(-720deg) scale(0.2);
+    -webkit-filter: blur(20px);
+    filter: blur(20px);
     opacity: 0;
   }
   50% {
-    -webkit-transform: rotate(-180deg) scale(1.1);
-    transform: rotate(-180deg) scale(1.1);
-    -webkit-filter: blur(10px);
-    filter: blur(10px);
-    opacity: 0.5;
+    -webkit-transform: rotate(-360deg) scale(1.2);
+    transform: rotate(-360deg) scale(1.2);
+    -webkit-filter: blur(5px);
+    filter: blur(5px);
+    opacity: 0.7;
   }
   100% {
     -webkit-transform: rotate(0deg) scale(1);

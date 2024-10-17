@@ -1,17 +1,17 @@
 // Global variable for image paths
 const imagePaths = {
-  blueberry: "../images/par.png",
-  strawberry: "../images/strawberry.png",
-  apple: "../images/apple.png",
-  banana: "../images/banana.png",
-  mango: "../images/mango.png",
-  pineapple: "../images/pineapple.png",
-  watermelon: "../images/watermelon.png",
-  melon: "../images/melon.png",
-  drink: "../images/drink.png",
+  blueberry: "https://content.adoveodemo.com/1727183549946_purple-candy.png",
+  strawberry: "https://content.adoveodemo.com/1727183591584_red-special.png",
+  apple: "https://content.adoveodemo.com/1729086289157_par.png",
+  banana: "https://clipground.com/images/png-banana-8.png",
+  mango: "https://content.adoveodemo.com/1727183570118_blue-special.png",
+  pineapple: "https://content.adoveodemo.com/1727183544758_yellow-special.png",
+  watermelon: "https://content.adoveodemo.com/1727183563661_green-special.png",
+  drink: "https://content.adoveodemo.com/1727183584324_color-bomb.png",
 };
 
 // Array with all image paths for the game
+
 const emojiSequence = [
   imagePaths.blueberry,
   imagePaths.strawberry,
@@ -175,7 +175,12 @@ function handleDrop(event) {
   const draggedEmoji = event.dataTransfer.getData("text/plain");
   const targetCell = event.target.closest(".cell");
   const targetEmoji = targetCell.querySelector("img").src;
-  if (draggedEmoji === targetEmoji && draggedElement !== targetCell) {
+
+  // Använd bara filnamnet för jämförelse
+  const draggedEmojiFile = draggedEmoji.split("/").pop();
+  const targetEmojiFile = targetEmoji.split("/").pop();
+
+  if (draggedEmojiFile === targetEmojiFile && draggedElement !== targetCell) {
     incrementScore(draggedEmoji);
     moves--;
     document.getElementById("moves").textContent = moves;
@@ -307,15 +312,17 @@ function getRandomEmoji() {
 }
 
 function incrementScore(matchedEmoji) {
-  const relativePath = `../images/${matchedEmoji.split("/").pop()}`;
-  if (!(relativePath in scoreValues)) return;
-
-  score += scoreValues[relativePath];
+  const emojiFileName = matchedEmoji.split("/").pop();
+  if (!Object.keys(scoreValues).some((path) => path.includes(emojiFileName)))
+    return;
+  score +=
+    scoreValues[
+      Object.keys(scoreValues).find((path) => path.includes(emojiFileName))
+    ];
   document.getElementById("score").textContent = score;
 
-  // Update the progress bar based on score
   document.getElementById("progress-bar").style.width = `${
-    (score / MaxMovesAndGoalScore) * MaxMovesAndGoalScore
+    (score / MaxMovesAndGoalScore) * 100
   }%`;
 
   checkGameOver();
@@ -327,7 +334,6 @@ function resetGameVersion2() {
   document.getElementById("score").textContent = score;
   document.getElementById("progress-bar").style.width = "0%";
 
-  // Ensure to hide the moves section and show goals section
   const movesSection = document.getElementById("movesSection");
   const goalsSection = document.getElementById("goalsSection");
 
