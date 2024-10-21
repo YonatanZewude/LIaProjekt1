@@ -116,7 +116,7 @@ function createBoard() {
     cell.addEventListener("dragend", handleDragEnd);
 
     cell.addEventListener("touchstart", handleTouchStart);
-    cell.addEventListener("touchmove", handleTouchMove);
+    cell.addEventListener("touchmove", handleTouchMove, { passive: true });
     cell.addEventListener("touchend", handleTouchEnd);
 
     board.appendChild(cell);
@@ -239,13 +239,22 @@ function handleTouchStart(event) {
 }
 
 function handleTouchMove(event) {
-  event.preventDefault();
   const touch = event.touches[0];
   movePlaceholder(touch.clientX, touch.clientY);
   touchElement = document
     .elementFromPoint(touch.clientX, touch.clientY)
     .closest(".cell");
 }
+
+function handleTouchMoveWithPreventDefault(event) {
+  event.preventDefault(); // Hindra scrollning
+  const touch = event.touches[0];
+  movePlaceholder(touch.clientX, touch.clientY);
+  touchElement = document
+    .elementFromPoint(touch.clientX, touch.clientY)
+    .closest(".cell");
+}
+
 function handleTouchEnd(event) {
   removeAllMatchedClasses();
 
@@ -403,8 +412,10 @@ function resetGame() {
   location.reload();
 }
 
-// Event listeners for reset button and modal
 createBoard();
+document.body.addEventListener("touchmove", handleTouchMoveWithPreventDefault, {
+  passive: false,
+});
 document.getElementById("modalButton").addEventListener("click", hideModal);
 document.querySelector(".modal .close").addEventListener("click", hideModal);
 window.addEventListener("click", (event) => {
