@@ -170,11 +170,9 @@ function handleDragStart(event) {
 function handleDragOver(event) {
   event.preventDefault();
 }
-
 function handleDrop(event) {
   event.preventDefault();
 
-  // Ta bort alla 'matched' klasser innan en ny dragning startar
   removeAllMatchedClasses();
 
   const draggedEmoji = event.dataTransfer.getData("text/plain");
@@ -194,17 +192,11 @@ function handleDrop(event) {
     draggedElement.classList.add("matched");
     targetCell.classList.add("matched");
 
-    draggedElement.addEventListener("animationend", () => {
-      if (draggedElement) {
-        draggedElement.classList.remove("matched");
-      }
-    });
+    draggedElement.addEventListener("animationend", removeMatchedClass);
+    draggedElement.addEventListener("transitionend", removeMatchedClass);
 
-    targetCell.addEventListener("animationend", () => {
-      if (targetCell) {
-        targetCell.classList.remove("matched");
-      }
-    });
+    targetCell.addEventListener("animationend", removeMatchedClass);
+    targetCell.addEventListener("transitionend", removeMatchedClass);
 
     const nextEmojis = getNextTwoEmojis(draggedEmoji);
     originalCell.querySelector("img").src = nextEmojis[0];
@@ -216,11 +208,8 @@ function handleDrop(event) {
   }
 }
 
-function removeAllMatchedClasses() {
-  const matchedElements = document.querySelectorAll(".matched");
-  matchedElements.forEach((element) => {
-    element.classList.remove("matched");
-  });
+function removeMatchedClass(event) {
+  event.target.classList.remove("matched");
 }
 
 function handleDragEnd(event) {
@@ -230,7 +219,6 @@ function handleDragEnd(event) {
   originalCell = null;
 }
 
-// Return img to the original cell if no match
 function returnEmojiToOriginalCell() {
   originalCell.querySelector("img").style.visibility = "visible";
 }
@@ -242,7 +230,7 @@ function handleTouchStart(event) {
     .closest(".cell");
   originalContent = draggedElement.querySelector("img").src;
   originalCell = draggedElement;
-  draggedElement.querySelector("img").style.visibility = "hidden"; // Hide the original image in cell
+  draggedElement.querySelector("img").style.visibility = "hidden";
 
   // Create visual copy of the element being dragged
   placeholder = createPlaceholder(originalContent);
@@ -258,42 +246,78 @@ function handleTouchMove(event) {
     .elementFromPoint(touch.clientX, touch.clientY)
     .closest(".cell");
 }
-
-// Handle touch end event
 function handleTouchEnd(event) {
-  if (touchElement && touchElement !== originalCell) {
-    const draggedEmoji = originalContent;
-    const targetEmoji = touchElement.querySelector("img").src;
+  removeAllMatchedClasses();
 
-    const draggedEmojiFile = draggedEmoji.split("/").pop();
-    const targetEmojiFile = targetEmoji.split("/").pop();
+  if (touchElement && touchElement !== originalCell) {
+    const draggedEmojiFile = originalContent.split("/").pop();
+    const targetEmojiFile = touchElement
+      .querySelector("img")
+      .src.split("/")
+      .pop();
 
     if (draggedEmojiFile === targetEmojiFile) {
-      incrementScore(draggedEmoji);
-      moves--;
-      document.getElementById("moves").textContent = moves;
+      incrementScore(originalContent);
+      updateMovesAndProgress();
 
-      // Update progress bar based on remaining moves
-      updateProgressBarBasedOnMoves();
-
-      const nextEmojis = getNextTwoEmojis(draggedEmoji);
-      originalCell.querySelector("img").src = nextEmojis[0];
-      touchElement.querySelector("img").src = nextEmojis[1];
+      const [nextDraggedEmoji, nextTargetEmoji] =
+        getNextTwoEmojis(draggedEmojiFile);
+      updateEmojiImages(nextDraggedEmoji, nextTargetEmoji);
 
       draggedElement.classList.add("matched");
       touchElement.classList.add("matched");
+
+      draggedElement.addEventListener("animationend", removeMatchedClass);
+      draggedElement.addEventListener("transitionend", removeMatchedClass);
+
+      touchElement.addEventListener("animationend", removeMatchedClass);
+      touchElement.addEventListener("transitionend", removeMatchedClass);
+
       checkGameOver();
     } else {
       returnEmojiToOriginalCell();
     }
   }
 
+  cleanupTouchElements();
+}
+
+function updateMovesAndProgress() {
+  moves--;
+  document.getElementById("moves").textContent = moves;
+  updateProgressBarBasedOnMoves();
+}
+
+function updateEmojiImages(nextDraggedEmoji, nextTargetEmoji) {
+  originalCell.querySelector("img").src = nextDraggedEmoji;
+  touchElement.querySelector("img").src = nextTargetEmoji;
+}
+
+function addAndRemoveMatchedClasses() {
+  draggedElement.classList.add("matched");
+  touchElement.classList.add("matched");
+
+  setTimeout(() => {
+    removeAllMatchedClasses();
+  }, 500);
+}
+
+function cleanupTouchElements() {
   if (placeholder) placeholder.remove();
   if (draggedElement)
     draggedElement.querySelector("img").style.visibility = "visible";
   draggedElement = null;
   touchElement = null;
   placeholder = null;
+}
+
+function removeAllMatchedClasses() {
+  const matchedElements = document.querySelectorAll(".matched");
+  console.log(`Found ${matchedElements.length} matched elements to remove`);
+  matchedElements.forEach((element) => {
+    console.log("Removing matched class from element:", element);
+    element.classList.remove("matched");
+  });
 }
 
 // Create a visual placeholder for the dragged element
