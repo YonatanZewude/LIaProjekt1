@@ -170,8 +170,13 @@ function handleDragStart(event) {
 function handleDragOver(event) {
   event.preventDefault();
 }
+
 function handleDrop(event) {
   event.preventDefault();
+
+  // Ta bort alla 'matched' klasser innan en ny dragning startar
+  removeAllMatchedClasses();
+
   const draggedEmoji = event.dataTransfer.getData("text/plain");
   const targetCell = event.target.closest(".cell");
   const targetEmoji = targetCell.querySelector("img").src;
@@ -184,29 +189,38 @@ function handleDrop(event) {
     moves--;
     document.getElementById("moves").textContent = moves;
 
-    // Update progress bar based on remaining moves
     updateProgressBarBasedOnMoves();
 
     draggedElement.classList.add("matched");
     targetCell.classList.add("matched");
+
+    draggedElement.addEventListener("animationend", () => {
+      if (draggedElement) {
+        draggedElement.classList.remove("matched");
+      }
+    });
+
+    targetCell.addEventListener("animationend", () => {
+      if (targetCell) {
+        targetCell.classList.remove("matched");
+      }
+    });
 
     const nextEmojis = getNextTwoEmojis(draggedEmoji);
     originalCell.querySelector("img").src = nextEmojis[0];
     targetCell.querySelector("img").src = nextEmojis[1];
 
     checkGameOver();
-
-    setTimeout(() => {
-      if (draggedElement) {
-        draggedElement.classList.remove("matched");
-      }
-      if (targetCell) {
-        targetCell.classList.remove("matched");
-      }
-    }, 1500);
   } else {
     returnEmojiToOriginalCell();
   }
+}
+
+function removeAllMatchedClasses() {
+  const matchedElements = document.querySelectorAll(".matched");
+  matchedElements.forEach((element) => {
+    element.classList.remove("matched");
+  });
 }
 
 function handleDragEnd(event) {
