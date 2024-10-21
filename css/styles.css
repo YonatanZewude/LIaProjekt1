@@ -181,6 +181,10 @@ body {
   max-width: 70px;
   max-height: 70px;
   object-fit: contain;
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE/Edge */
 }
 
 #reset_button_section {

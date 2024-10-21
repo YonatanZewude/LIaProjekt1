@@ -1,13 +1,13 @@
 // Global variable for image paths
 const imagePaths = {
-  blueberry: "https://content.adoveodemo.com/1729499244809_1.png",
-  strawberry: "https://content.adoveodemo.com/1729499250486_2.png",
-  apple: "https://content.adoveodemo.com/1729499256359_3.png",
-  banana: "https://content.adoveodemo.com/1729499262545_4.png",
-  mango: "https://content.adoveodemo.com/1729499268469_5.png",
-  pineapple: "https://content.adoveodemo.com/1729499274774_6.png",
-  watermelon: "https://content.adoveodemo.com/1729499281547_7.png",
-  drink: "https://content.adoveodemo.com/1729499295834_8.png",
+  blueberry: "https://content.adoveodemo.com/1727183549946_purple-candy.png",
+  strawberry: "https://content.adoveodemo.com/1727183591584_red-special.png",
+  apple: "https://content.adoveodemo.com/1729086289157_par.png",
+  banana: "https://clipground.com/images/png-banana-8.png",
+  mango: "https://content.adoveodemo.com/1727183570118_blue-special.png",
+  pineapple: "https://content.adoveodemo.com/1727183544758_yellow-special.png",
+  watermelon: "https://content.adoveodemo.com/1727183563661_green-special.png",
+  drink: "https://content.adoveodemo.com/1727183584324_color-bomb.png",
 };
 
 // Array with all image paths for the game
@@ -53,30 +53,32 @@ const movesDisplay = document.getElementById("moves");
 const goalsSection = document.getElementById("goalsSection");
 const movesSection = document.getElementById("movesSection");
 
-// const moveButton = document.getElementById("Limited_number_of_moves");
-// moveButton.addEventListener("click", () => {
-//   gameMode = "Version 1";
-//   resetGameVersion1();
-// });
+const moveButton = document.getElementById("Limited_number_of_moves");
+moveButton.addEventListener("click", () => {
+  gameMode = "Version 1";
+  resetGameVersion1();
+});
 
-// const scoreButton = document.getElementById("Unlimited_number_of_moves");
-// scoreButton.addEventListener("click", () => {
-//   gameMode = "Version2";
-//   initVersion2();
-// });
+const scoreButton = document.getElementById("Unlimited_number_of_moves");
+scoreButton.addEventListener("click", () => {
+  gameMode = "Version2";
+  initVersion2();
+});
 
 function switchGameMode() {
   if (gameMode === "Version 1") {
     initVersion2();
     gameMode = "Version2";
+    console.log("Switched to Version2: Unlimited Moves");
   } else {
     resetGameVersion1();
     gameMode = "Version 1";
+    console.log("Switched to Version 1: Limited Moves");
   }
 }
 
 const nrOfGols = document.getElementById("goalsSection");
-nrOfGols.innerHTML = "Goals: " + MaxMovesAndGoalScore + " " + "score";
+nrOfGols.innerHTML = "Goals: " + MaxMovesAndGoalScore;
 const nrOfMoves = document.getElementById("moves");
 nrOfMoves.innerHTML = MaxMovesAndGoalScore;
 
@@ -100,23 +102,22 @@ function resetGameVersion1() {
 // Create game board with random images in each cell
 function createBoard() {
   board.innerHTML = "";
-
   for (let i = 0; i < totalCells; i++) {
     const cell = document.createElement("div");
     cell.className = "cell";
     cell.setAttribute("draggable", true);
     const imgElement = document.createElement("img");
-
     imgElement.src = getRandomEmoji();
     cell.appendChild(imgElement);
-    board.addEventListener("dragstart", handleDragStart);
-    board.addEventListener("dragover", handleDragOver);
-    board.addEventListener("drop", handleDrop);
-    board.addEventListener("dragend", handleDragEnd);
 
-    board.addEventListener("touchstart", handleTouchStart, { passive: true });
-    board.addEventListener("touchmove", handleTouchMove, { passive: true });
-    board.addEventListener("touchend", handleTouchEnd), { passive: true };
+    cell.addEventListener("dragstart", handleDragStart);
+    cell.addEventListener("dragover", handleDragOver);
+    cell.addEventListener("drop", handleDrop);
+    cell.addEventListener("dragend", handleDragEnd);
+
+    cell.addEventListener("touchstart", handleTouchStart);
+    cell.addEventListener("touchmove", handleTouchMove, { passive: true });
+    cell.addEventListener("touchend", handleTouchEnd);
 
     board.appendChild(cell);
   }
@@ -130,7 +131,7 @@ function initVersion2() {
   goalsSection.style.display = "block";
 
   scoreDisplay.textContent = score;
-  // document.getElementById("progress-bar").style.width = "0%";
+  document.getElementById("progress-bar").style.width = "0%";
 
   createBoard();
 }
@@ -186,7 +187,7 @@ function handleDrop(event) {
     moves--;
     document.getElementById("moves").textContent = moves;
 
-    //updateProgressBarBasedOnMoves();
+    updateProgressBarBasedOnMoves();
 
     draggedElement.classList.add("matched");
     targetCell.classList.add("matched");
@@ -224,26 +225,17 @@ function returnEmojiToOriginalCell() {
 
 function handleTouchStart(event) {
   const touch = event.touches[0];
-
   draggedElement = document
     .elementFromPoint(touch.clientX, touch.clientY)
-    ?.closest(".cell");
-  if (draggedElement) {
-    const imgElement = draggedElement.querySelector("img");
+    .closest(".cell");
+  originalContent = draggedElement.querySelector("img").src;
+  originalCell = draggedElement;
+  draggedElement.querySelector("img").style.visibility = "hidden";
 
-    if (imgElement) {
-      originalContent = imgElement.src;
-      originalCell = draggedElement;
-      imgElement.style.visibility = "hidden";
-
-      placeholder = createPlaceholder(originalContent);
-      document.body.appendChild(placeholder);
-      movePlaceholder(touch.clientX, touch.clientY);
-    } else {
-      console.error("Inget <img> element hittades i den valda cellen.");
-    }
-  } else {
-  }
+  // Create visual copy of the element being dragged
+  placeholder = createPlaceholder(originalContent);
+  document.body.appendChild(placeholder);
+  movePlaceholder(touch.clientX, touch.clientY);
 }
 
 function handleTouchMove(event) {
@@ -255,7 +247,7 @@ function handleTouchMove(event) {
 }
 
 function handleTouchMoveWithPreventDefault(event) {
-  event.preventDefault();
+  event.preventDefault(); // Hindra scrollning
   const touch = event.touches[0];
   movePlaceholder(touch.clientX, touch.clientY);
   touchElement = document
@@ -302,7 +294,7 @@ function handleTouchEnd(event) {
 function updateMovesAndProgress() {
   moves--;
   document.getElementById("moves").textContent = moves;
-  //updateProgressBarBasedOnMoves();
+  updateProgressBarBasedOnMoves();
 }
 
 function updateEmojiImages(nextDraggedEmoji, nextTargetEmoji) {
@@ -330,7 +322,9 @@ function cleanupTouchElements() {
 
 function removeAllMatchedClasses() {
   const matchedElements = document.querySelectorAll(".matched");
+  console.log(`Found ${matchedElements.length} matched elements to remove`);
   matchedElements.forEach((element) => {
+    console.log("Removing matched class from element:", element);
     element.classList.remove("matched");
   });
 }
@@ -345,38 +339,19 @@ function createPlaceholder(src) {
   placeholder.style.pointerEvents = "none";
   return placeholder;
 }
-// // Update the progress bar based on remaining moves
-// function updateProgressBarBasedOnMoves() {
-//   const progressPercentage =
-//     ((MaxMovesAndGoalScore - moves) / MaxMovesAndGoalScore) * 100;
-//   document.getElementById(
-//     "progress-bar"
-//   ).style.width = `${progressPercentage}%`;
-// }
+// Update the progress bar based on remaining moves
+function updateProgressBarBasedOnMoves() {
+  const progressPercentage =
+    ((MaxMovesAndGoalScore - moves) / MaxMovesAndGoalScore) * 100;
+  document.getElementById(
+    "progress-bar"
+  ).style.width = `${progressPercentage}%`;
+}
 
 function movePlaceholder(x, y) {
-  if (!placeholder) return; // Kontrollera om placeholder finns innan du ändrar position
-
-  window.requestAnimationFrame(() => {
-    placeholder.style.left = `${x - placeholder.width / 2}px`;
-    placeholder.style.top = `${y - placeholder.height / 2}px`;
-  });
+  placeholder.style.left = `${x - placeholder.width / 2}px`;
+  placeholder.style.top = `${y - placeholder.height / 2}px`;
 }
-
-function throttle(func, limit) {
-  let inThrottle;
-  return function () {
-    const args = arguments;
-    const context = this;
-    if (!inThrottle) {
-      func.apply(context, args);
-      inThrottle = true;
-      setTimeout(() => (inThrottle = false), limit);
-    }
-  };
-}
-
-document.body.addEventListener("touchmove", throttle(handleTouchMove, 100));
 
 // Get the next two emojis based on the matched emoji
 function getNextTwoEmojis(matchedEmoji) {
@@ -408,9 +383,9 @@ function incrementScore(matchedEmoji) {
     ];
   document.getElementById("score").textContent = score;
 
-  // document.getElementById("progress-bar").style.width = `${
-  //   (score / MaxMovesAndGoalScore) * 100
-  // }%`;
+  document.getElementById("progress-bar").style.width = `${
+    (score / MaxMovesAndGoalScore) * 100
+  }%`;
 
   checkGameOver();
 }
